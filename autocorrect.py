@@ -30,7 +30,7 @@ from Xlib import X, XK, display
 from Xlib.ext import record
 from Xlib.protocol import rq
 
-local_dpy = display.Display()
+inject_dpy = display.Display()
 record_dpy = display.Display()
 
 def reset_state():
@@ -112,31 +112,31 @@ def lookup_keysym(keysym):
     return "[%d]" % keysym
 
 def inject_unicode(char):
-    Xlib.ext.xtest.fake_input(local_dpy, Xlib.X.KeyPress, 37)  # ctrl
-    Xlib.ext.xtest.fake_input(local_dpy, Xlib.X.KeyPress, 50)  # shift
+    Xlib.ext.xtest.fake_input(inject_dpy, Xlib.X.KeyPress, 37)  # ctrl
+    Xlib.ext.xtest.fake_input(inject_dpy, Xlib.X.KeyPress, 50)  # shift
 
-    Xlib.ext.xtest.fake_input(local_dpy, Xlib.X.KeyPress, 30)  # u
-    Xlib.ext.xtest.fake_input(local_dpy, Xlib.X.KeyRelease, 30)
+    Xlib.ext.xtest.fake_input(inject_dpy, Xlib.X.KeyPress, 30)  # u
+    Xlib.ext.xtest.fake_input(inject_dpy, Xlib.X.KeyRelease, 30)
 
-    Xlib.ext.xtest.fake_input(local_dpy, Xlib.X.KeyRelease, 37)  # ctrl
-    Xlib.ext.xtest.fake_input(local_dpy, Xlib.X.KeyRelease, 50)  # shift
+    Xlib.ext.xtest.fake_input(inject_dpy, Xlib.X.KeyRelease, 37)  # ctrl
+    Xlib.ext.xtest.fake_input(inject_dpy, Xlib.X.KeyRelease, 50)  # shift
 
     # str(unicode-escape) gives us something like "b'\u1313'" or "b'\xeb'", so we need to skip
     # the first 5 and the very last character
     codepoint = str(char.encode('unicode-escape'))[5:-1]
     codepoint = hex(ord(char))[2:]
     for n in codepoint:
-        keycode = local_dpy.keysym_to_keycode(XK.string_to_keysym(n))
-        Xlib.ext.xtest.fake_input(local_dpy, Xlib.X.KeyPress, keycode)
-        Xlib.ext.xtest.fake_input(local_dpy, Xlib.X.KeyRelease, keycode)
+        keycode = inject_dpy.keysym_to_keycode(XK.string_to_keysym(n))
+        Xlib.ext.xtest.fake_input(inject_dpy, Xlib.X.KeyPress, keycode)
+        Xlib.ext.xtest.fake_input(inject_dpy, Xlib.X.KeyRelease, keycode)
 
-    Xlib.ext.xtest.fake_input(local_dpy, Xlib.X.KeyPress, 65)  # space, ends unicode input
-    Xlib.ext.xtest.fake_input(local_dpy, Xlib.X.KeyRelease, 65)
+    Xlib.ext.xtest.fake_input(inject_dpy, Xlib.X.KeyPress, 65)  # space, ends unicode input
+    Xlib.ext.xtest.fake_input(inject_dpy, Xlib.X.KeyRelease, 65)
 
 
 def backspace():
-    Xlib.ext.xtest.fake_input(local_dpy, Xlib.X.KeyPress, 22)
-    Xlib.ext.xtest.fake_input(local_dpy, Xlib.X.KeyRelease, 22)
+    Xlib.ext.xtest.fake_input(inject_dpy, Xlib.X.KeyPress, 22)
+    Xlib.ext.xtest.fake_input(inject_dpy, Xlib.X.KeyRelease, 22)
 
 
 def inject_ascii(char):
@@ -144,13 +144,13 @@ def inject_ascii(char):
         keysym = XK.string_to_keysym(special_X_keysyms[char])
     else:
         keysym = XK.string_to_keysym(char)
-    keycode = local_dpy.keysym_to_keycode(keysym)
+    keycode = inject_dpy.keysym_to_keycode(keysym)
     if char.isupper() or char in "~!@#$%^&*()_+{}|:\"<>?":
-        Xlib.ext.xtest.fake_input(local_dpy, Xlib.X.KeyPress, 50)  # shift
-    Xlib.ext.xtest.fake_input(local_dpy, Xlib.X.KeyPress, keycode)
-    Xlib.ext.xtest.fake_input(local_dpy, Xlib.X.KeyRelease, keycode)
+        Xlib.ext.xtest.fake_input(inject_dpy, Xlib.X.KeyPress, 50)  # shift
+    Xlib.ext.xtest.fake_input(inject_dpy, Xlib.X.KeyPress, keycode)
+    Xlib.ext.xtest.fake_input(inject_dpy, Xlib.X.KeyRelease, keycode)
     if char.isupper() or char in "~!@#$%^&*()_+{}|:\"<>?":
-        Xlib.ext.xtest.fake_input(local_dpy, Xlib.X.KeyRelease, 50)  # shift
+        Xlib.ext.xtest.fake_input(inject_dpy, Xlib.X.KeyRelease, 50)  # shift
 
 def inject_str(string):
     for c in string:
@@ -159,7 +159,7 @@ def inject_str(string):
             inject_ascii(c)
         except:
             inject_unicode(c)
-    local_dpy.flush()
+    inject_dpy.flush()
 
 
 def record_callback(reply):
@@ -180,7 +180,7 @@ def record_callback(reply):
         if event.type in [X.KeyPress, X.KeyRelease]:
             pr = event.type == X.KeyPress and "Press" or "Release"
 
-            keysym = local_dpy.keycode_to_keysym(event.detail, 0)
+            keysym = inject_dpy.keycode_to_keysym(event.detail, 0)
             if not keysym:
                 print("KeyCode%s %s" % (pr, event.detail))
             else:
