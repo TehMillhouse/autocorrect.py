@@ -201,7 +201,7 @@ def record_callback(reply):
             reset_state()
 
 def main():
-    # Create a recording context; we only want key and mouse events
+    # Create a recording context; we only want key and focus events
     ctx = record_dpy.record_create_context(
             0,
             [record.AllClients],
@@ -211,7 +211,7 @@ def main():
                 'ext_requests': (0, 0, 0, 0),
                 'ext_replies': (0, 0, 0, 0),
                 'delivered_events': (X.FocusIn, X.FocusOut),
-                'device_events': (X.KeyPress, X.MotionNotify),
+                'device_events': (X.KeyPress, X.KeyRelease),
                 'errors': (0, 0),
                 'client_started': False,
                 'client_died': False,
@@ -219,8 +219,11 @@ def main():
 
     # Enable the context; this only returns after a call to record_disable_context,
     # while calling the callback function in the meantime
-    record_dpy.record_enable_context(ctx, record_callback)
-
+    try:
+        record_dpy.record_enable_context(ctx, record_callback)
+    except:
+        pass
+    print("shutting down")
     # Finally free the context
     record_dpy.record_free_context(ctx)
 

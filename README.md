@@ -14,9 +14,16 @@ Example:
 }
 ```
 
-Caveat:
+License
 -------
 
-Non-ascii characters are tricky to get working through keyboard events alone, so I've opted for sending <kbd>Ctrl</kdb>+<kbd>Shift</kbd>+<kbd>u</kbd> followed by the hexadecimal unicode codepoint and <kbd>Space</kbd>. This works in Gtk and Qt programs, but not everywhere (it doesn't work in Emacs and xterm for example).
+GPLv2 (I'm sorry).
+
+Caveats
+-------
+
+* There's a ton of patterns that won't work, e.g. anything that requires modifier Keys to type.
+* Substitutions may trigger additional substitutions. I.e. setting up a substitution from `"a"` to `"aa"` is a bad idea.
+* Non-ascii characters are tricky to get working through keyboard events alone, so I've opted for sending <kbd>Ctrl</kdb>+<kbd>Shift</kbd>+<kbd>u</kbd> followed by the hexadecimal unicode codepoint and <kbd>Space</kbd>. This works in Gtk and Qt programs, but not everywhere (it doesn't work in Emacs and xterm for example).
 
 (Note: the "accepted" way to work around this is to temporarily modify the keyboard mapping to include whatever unicode character is to be typed and wait a couple of milliseconds for the X server to catch up before typing it. That was a bit too icky for me)
