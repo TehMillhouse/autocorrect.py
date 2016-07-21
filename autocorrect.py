@@ -43,11 +43,13 @@ shortcuts = {
 
 def load_config():
     global shortcuts
-    config_path = os.path.join(os.path.expanduser('~'), '.config/autocorrect')
+    config_path = os.path.join(os.path.expanduser('~'), '.config/autocorrect.conf')
     if os.path.exists(config_path):
         with open(config_path, 'r') as f:
             shortcuts = json.loads(f.read())
-
+        print("Importing autocorrect.conf... " + str(len(shortcuts)) + " patterns found.")
+    else:
+        print("No config file found, using default")
 
 def advance_state(char): # -> (key, value) if key has been detected, else None
     for key in state:
