@@ -4,7 +4,7 @@ Autocorrect.py
 Heavy user of `¯\_(ツ)_/¯`, but can't be bothered to copy & paste it every time you want to use it?
 Autokey too capable for you? Then this is the perfect shitty one-day project for you!
 
-Simply add a config file at `~/.config/autocorrect` containing a JSON object with the mapping from pattern to substitution and run this script.
+Simply add a config file at `~/.config/autocorrect.conf` containing a JSON object with the mapping from pattern to substitution and run this script.
 
 Example:
 ```json
